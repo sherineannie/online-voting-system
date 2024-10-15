@@ -1,0 +1,140 @@
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Scanner;
+
+public class OnlineVotingSystem {
+
+    // Predefined parties with their vote counts
+    private static Map<String, Integer> parties = new HashMap<>();
+    
+    // Map to track voters who have already voted
+    private static Map<String, Boolean> voters = new HashMap<>();
+
+    // Initialize the parties with 0 votes
+    static {
+        parties.put("Party A", 0);
+        parties.put("Party B", 0);
+        parties.put("Party C", 0);
+    }
+
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        String password;
+
+        while (true) {
+            System.out.println("\n--- Online Voting System ---");
+            System.out.println("1. Vote");
+            System.out.println("2. Admin (Enter Password to View Results)");
+            System.out.print("Enter your choice: ");
+            int choice = scanner.nextInt();
+
+            switch (choice) {
+                case 1:
+                    // Voting process
+                    castVote(scanner);
+                    break;
+                case 2:
+                    // Admin login to view results
+                    System.out.print("Enter Admin Password: ");
+                    password = scanner.next();
+                    if (password.equals("123")) {
+                        showResults();
+                    } else {
+                        System.out.println("Invalid Password. Access Denied.");
+                    }
+                    break;
+                default:
+                    System.out.println("Invalid choice. Please try again.");
+            }
+        }
+    }
+
+    // Method to cast a vote for a predefined party
+    private static void castVote(Scanner scanner) {
+        String voterId;
+        int partyChoice;
+
+        // Get voter ID
+        System.out.print("Enter your Voter ID: ");
+        voterId = scanner.next();
+
+        // Check if the voter has already voted
+        if (voters.containsKey(voterId)) {
+            System.out.println("You have already voted! Thank you.");
+            return;
+        }
+
+        // Display parties for voting
+        System.out.println("Please cast your vote by entering the number:");
+        System.out.println("1. Party A");
+        System.out.println("2. Party B");
+        System.out.println("3. Party C");
+
+        // Get the voter's choice
+        System.out.print("Enter your choice (1, 2, or 3): ");
+        partyChoice = scanner.nextInt();
+
+        // Cast the vote based on input
+        switch (partyChoice) {
+            case 1:
+                parties.put("Party A", parties.get("Party A") + 1);
+                System.out.println("You voted for Party A.");
+                break;
+            case 2:
+                parties.put("Party B", parties.get("Party B") + 1);
+                System.out.println("You voted for Party B.");
+                break;
+            case 3:
+                parties.put("Party C", parties.get("Party C") + 1);
+                System.out.println("You voted for Party C.");
+                break;
+            default:
+                System.out.println("Invalid choice. Your vote was not counted.");
+                return;
+        }
+
+        // Mark the voter as having voted
+        voters.put(voterId, true);
+        System.out.println("Thank you for voting!");
+    }
+
+    // Method to show election results (Admin only)
+    private static void showResults() {
+        System.out.println("\n--- Election Results ---");
+
+        // Display the vote count for each party
+        for (Map.Entry<String, Integer> entry : parties.entrySet()) {
+            System.out.println(entry.getKey() + " received " + entry.getValue() + " votes.");
+        }
+
+        // Determine the winning party
+        String winningParty = getWinningParty();
+        if (winningParty != null) {
+            System.out.println("\nThe winning party is: " + winningParty + "!");
+        } else {
+            System.out.println("\nIt's a tie! No clear winner.");
+        }
+    }
+
+    // Method to determine the winning party
+    private static String getWinningParty() {
+        int maxVotes = -1;
+        String winningParty = null;
+        boolean tie = false;
+
+        // Determine the party with the maximum votes
+        for (Map.Entry<String, Integer> entry : parties.entrySet()) {
+            if (entry.getValue() > maxVotes) {
+                maxVotes = entry.getValue();
+                winningParty = entry.getKey();
+                tie = false;
+            } else if (entry.getValue() == maxVotes) {
+                tie = true; // If two or more parties have the same max votes, it's a tie
+            }
+        }
+
+        // If there's a tie, return null
+        return tie ? null : winningParty;
+    }
+}
+
